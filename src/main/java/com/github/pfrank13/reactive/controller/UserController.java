@@ -6,6 +6,7 @@ import com.github.pfrank13.reactive.repository.UserRespoitory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,31 +44,22 @@ public class UserController {
   }
 
   @PostMapping("/user")
-  @ResponseBody
-  public Mono<UserDto> postUser(@RequestBody final Mono<UserDto> userDtoMono){
+  public Mono<ResponseEntity<UserDto>> postUser(@RequestBody final Mono<UserDto> userDtoMono){
     return userDtoMono.flatMap(userDto -> userRespoitory.save(this.mapUserDtoToUser(userDto)))
-        .map(this::mapUserToUserDto)
-        .onErrorMap(throwable -> {
-          log.error("DID THIS BOMB", throwable);
-          return throwable;
-        });
+        .flatMap(this::createdResponseEntity);
   }
 
   User mapUserDtoToUser(UserDto userDto){
-    log.info("###########UserDto\n{}", userDto.toString());
     return User.builder().id(userDto.getId()).name(userDto.getName()).build();
   }
 
   UserDto mapUserToUserDto(final User user){
-    log.info("###########User this never is called\n{}", user.toString());
     return UserDto.builder().id(user.getId()).name(user.getName()).build();
   }
 
-  Mono<ServerResponse> createdServerResponse(User user){
-    log.info("PERSISTED USER {}", user.toString());
-    return ServerResponse.created(URI.create(String.format("/user/%d", user.getId())))
-        .contentType(MediaType.APPLICATION_JSON_UTF8)
-        .body(Mono.just(user).map(this::mapUserToUserDto), UserDto.class);
+  Mono<ResponseEntity<UserDto>> createdResponseEntity(User user){
+    return Mono.just(ResponseEntity.created(URI.create(String.format("/user/%d", user.getId())))
+        .body(mapUserToUserDto(user)));
   }
 
   @PutMapping("/user/{id}")

@@ -19,7 +19,7 @@
   <properties>
     <java.version>11</java.version>
     <h2.r2dbc.version>1.0.0.M7</h2.r2dbc.version>
-    <spring.data.r2dbc.version>1.0.0.M1</spring.data.r2dbc.version>
+    <spring.data.r2dbc.version>1.0.0.BUILD-SNAPSHOT</spring.data.r2dbc.version>
     <lombok.version>1.18.6</lombok.version>
     <assertj.version>3.12.2</assertj.version>
   </properties>
@@ -94,6 +94,14 @@
     </plugins>
   </build>
   <repositories>
+    <repository>
+      <id>spring-snapshots</id>
+      <name>Spring Snapshots</name>
+      <url>https://repo.spring.io/snapshot</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>spring-milestones</id>
       <name>Spring Milestones</name>
